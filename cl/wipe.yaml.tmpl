@@ -1,0 +1,13 @@
+---
+storage:
+  filesystems:
+    - name: ROOT
+      mount:
+        device: /dev/disk/by-label/ROOT
+        format: ext4
+        wipe_filesystem: true
+        label: ROOT
+ignition:
+  config:
+    append:
+      - source: "{{.ignition_endpoint}}?{{.request.raw_query}}&append=1"
