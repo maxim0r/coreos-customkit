@@ -52,6 +52,7 @@ resource "matchbox_group" "default" {
     baseurl = "${local.matchbox_http_endpoint}/assets/coreos"
     ignition_endpoint = "${local.matchbox_http_endpoint}/ignition"
     ssh_authorized_key = "${var.ssh_authorized_key}"
+    coreos_version = "${var.coreos_version}"
   }
 }
 

@@ -24,7 +24,7 @@ storage:
           coreos-install \
             -d /dev/sda \
             -C stable \
-            -V current \
+            -V {{.coreos_version}} \
             -i ignition.json \
             -b "{{.baseurl}}"
           udevadm settle
