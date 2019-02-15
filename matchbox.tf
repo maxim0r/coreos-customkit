@@ -61,7 +61,7 @@ resource "docker_container" "matchbox" {
     file = "/etc/matchbox/server.key"
   }
   networks_advanced {
-    name = "matchbox"
+    name = "${docker_network.matchbox.name}"
   }
 }
 
@@ -78,7 +78,7 @@ resource "docker_container" "dnsmasq" {
     file = "/etc/dnsmasq.conf"
   }
   networks_advanced {
-    name = "matchbox"
+    name = "${docker_network.matchbox.name}"
   }
 }
 
