@@ -65,6 +65,12 @@ curl -# $BASE_URL/coreos_production_image.bin.bz2 -o $DEST/coreos_production_ima
 echo "coreos_production_image.bin.bz2.sig"
 curl -# $BASE_URL/coreos_production_image.bin.bz2.sig -o $DEST/coreos_production_image.bin.bz2.sig
 
+# Development container
+echo "coreos_developer_container.bin.bz2"
+curl -# $BASE_URL/coreos_developer_container.bin.bz2 -o $DEST/coreos_developer_container.bin.bz2
+echo "coreos_developer_container.bin.bz2.sig"
+curl -# $BASE_URL/coreos_developer_container.bin.bz2.sig -o $DEST/coreos_developer_container.bin.bz2.sig
+
 # Install oem image
 if [[ -n "${IMAGE_NAME-}" ]]; then
   echo $IMAGE_NAME

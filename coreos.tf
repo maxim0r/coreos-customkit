@@ -83,5 +83,6 @@ resource "matchbox_group" "virt_display" {
     domain_name          = "${libvirt_domain.display.name}.vm"
     ssh_authorized_key   = "${var.ssh_authorized_key}"
     vga_mode             = "${var.vesafb_vga_mode}"
+    postinst_script      = "${file("./cl/oem-postinst")}"
   }
 }

@@ -16,7 +16,6 @@ It simulates fast, automated and reproducible CoreOS development environment usi
 * Launch matchbox [first][1]: `terraform apply -target docker_container.matchbox`
 * Run everything else: `terraform apply`
 * Wait until CoreOS installed: `ssh 172.50.0.21 journalctl -u installer.service --follow`
-* Reboot VM to apply `/usr/share/oem/grub.cfg` kernel parameters
 * `docker-machine create --driver generic --generic-ip-address=172.50.0.21 --generic-ssh-user=core coreos-display`
 ## Factory reset VM
 * Edit your CL config: `cl/display.yaml.tmpl`
@@ -24,10 +23,9 @@ It simulates fast, automated and reproducible CoreOS development environment usi
 * Reboot VM to GRUB
 * Press 'e' and add `coreos.first_boot=1` to kernel cmdline
 * Update certs: `docker-machine regenerate-certs coreos-display`
-* Reboot again in case of `grub.cfg` changes
 ## Run example app on VM
 Stock CoreOS distribution have no graphics enable by default.
-Using this custom CL config we enabled `/dev/fb0` device on CoreOS to play videos.
+Using this custom CL config we enabled `/dev/fb0` and ALSA devices on CoreOS to play videos.
 `terraform apply example` will launch `mplayer` container that streams Big Buck Bounty into VM framebuffer.
 Open `virt-manager` to view it.
 

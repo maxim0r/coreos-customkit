@@ -23,4 +23,7 @@ resource "docker_container" "fbplay" {
   devices {
     host_path = "/dev/fb0"
   }
+  devices {
+    host_path = "/dev/snd"
+  }
 }

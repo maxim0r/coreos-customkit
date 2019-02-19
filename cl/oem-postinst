@@ -1,0 +1,64 @@
+#!/bin/bash
+
+SLOT="$1"
+USR="$2"
+
+. $USR/share/coreos/release
+. $USR/share/coreos/update.conf
+SDK_URL="https://${GROUP:-stable}.release.core-os.net/$COREOS_RELEASE_BOARD/$COREOS_RELEASE_VERSION/coreos_developer_container.bin.bz2"
+#SDK_URL="http://172.50.0.2:8080/assets/coreos/$COREOS_RELEASE_VERSION/coreos_developer_container.bin.bz2"
+MODULES_UPPER="/opt/modules"
+
+kconfig="$(cat <<-EOF
+CONFIG_SOUND=m
+CONFIG_SND=m
+
+CONFIG_SND_USB=n
+CONFIG_SND_SUPPORT_OLD_API=n
+CONFIG_SND_X86=n
+
+CONFIG_SND_DMA_SGBUF=y
+CONFIG_SND_DRIVERS=y
+CONFIG_SND_HDA=m
+CONFIG_SND_HDA_CODEC_HDMI=m
+CONFIG_SND_HDA_CODEC_REALTEK=m
+CONFIG_SND_HDA_CORE=m
+CONFIG_SND_HDA_GENERIC=m
+CONFIG_SND_HDA_INTEL=m
+CONFIG_SND_HDA_POWER_SAVE_DEFAULT=0
+CONFIG_SND_HDA_PREALLOC_SIZE=64
+CONFIG_SND_JACK=y
+CONFIG_SND_JACK_INPUT_DEV=y
+CONFIG_SND_PCI=y
+CONFIG_SND_PCM=m
+CONFIG_SND_PCM_TIMER=y
+CONFIG_SND_TIMER=m
+CONFIG_SND_PROC_FS=y
+CONFIG_SND_VERBOSE_PROCFS=y
+CONFIG_SND_VMASTER=y
+EOF
+)"
+
+inner_script="$(cat <<-EOF
+  emerge-gitclone
+  emerge -gKv coreos-sources
+  cd /usr/src/linux
+  cp /usr/boot/config .config
+  echo "$kconfig" >> .config
+  make olddefconfig
+  make -j modules_prepare
+  make -j modules SUBDIRS=sound
+  make modules_install SUBDIRS=sound
+  depmod \$(make kernelversion)
+EOF
+)"
+
+machinectl set-limit 4G # Workaround systemd bug #5859
+machinectl pull-raw --verify=no $SDK_URL
+mkdir -p "$MODULES_UPPER"
+systemd-nspawn \
+	-M coreos_developer_container \
+	--overlay="+/lib/modules:$MODULES_UPPER:/lib/modules" \
+	bash -xec "$inner_script"
+machinectl remove coreos_developer_container
+machinectl clean

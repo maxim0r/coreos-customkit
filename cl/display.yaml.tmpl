@@ -18,6 +18,17 @@ storage:
       contents:
         inline: |
           set linux_append="$linux_append vga={{.vga_mode}} video=vesafb"
+    - filesystem: OEM
+      path: /bin/oem-postinst
+      mode: 0755
+      append: false
+      contents:
+        inline: "{{ .postinst_script | js }}"
+    - filesystem: root
+      path: /etc/modules-load.d/snd.conf
+      mode: 0644
+      contents:
+        inline: snd-hda-intel
 systemd:
   units:
     - name: tty7.service
@@ -36,3 +47,37 @@ systemd:
 
         [Install]
         WantedBy=getty.target
+    - name: usr-lib64-modules.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Additional kernel modules overlay
+        ConditionVirtualization=!container
+        ConditionPathExists=/opt/modules
+        Before=systemd-modules-load.service
+
+        [Mount]
+        Type=overlay
+        What=overlay
+        Where=/usr/lib64/modules
+        Options=lowerdir=/opt/modules:/usr/lib64/modules
+
+        [Install]
+        WantedBy=local-fs.target
+    - name: firstboot.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Run postinst hook on first boot
+        ConditionFirstBoot=yes
+        Requires=network.target
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/share/oem/bin/oem-postinst A /usr
+        ExecStart=/usr/bin/systemctl reboot
+        StandardOutput=journal+console
+        StandardError=journal+console
+
+        [Install]
+        WantedBy=multi-user.target
